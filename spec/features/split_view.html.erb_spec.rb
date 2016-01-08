@@ -2,11 +2,11 @@ require 'spec_helper'
 
 feature 'Index view', js: true do
   before do
-    visit catalog_index_path(q: '*')
+    visit search_catalog_path(q: '*')
   end
 
   scenario 'should have documents and map on page' do
-    visit catalog_index_path(f: { dct_provenance_s: ['Stanford'] })
+    visit search_catalog_path(f: { dct_provenance_s: ['Stanford'] })
     expect(page).to have_css('#documents')
     expect(page).to have_css('.document', count: 3)
     expect(page).to have_css('#map')
@@ -31,7 +31,7 @@ feature 'Index view', js: true do
 
   scenario 'hover on record should produce bounding box on map' do
     # Needed to find an svg element on the page
-    visit catalog_index_path(f: { dct_provenance_s: ['Stanford'] })
+    visit search_catalog_path(f: { dct_provenance_s: ['Stanford'] })
     expect(Nokogiri::HTML.parse(page.body).css('path').length).to eq 0
     find('.documentHeader', match: :first).trigger(:mouseover)
     expect(Nokogiri::HTML.parse(page.body).css('path').length).to eq 1
