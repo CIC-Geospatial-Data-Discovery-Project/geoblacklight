@@ -11,6 +11,10 @@ module Geoblacklight
 
     desc 'Install Geoblacklight'
 
+    def inject_geoblacklight_routes
+      route "mount Geoblacklight::Engine => 'geoblacklight'"
+    end
+
     def install_jettywrapper
       return unless options[:jettywrapper]
       copy_file 'config/jetty.yml'

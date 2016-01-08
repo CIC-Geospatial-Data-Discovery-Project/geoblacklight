@@ -21,7 +21,6 @@ module Geoblacklight
   require 'geoblacklight/metadata'
   require 'geoblacklight/reference'
   require 'geoblacklight/references'
-  require 'geoblacklight/routes'
   require 'geoblacklight/search_builder'
 
   def self.inject!
@@ -34,7 +33,6 @@ module Geoblacklight
       SearchHistoryController.helpers.is_a?(Geoblacklight::ViewHelperOverride)
     SavedSearchesController.send(:helper, Geoblacklight::ViewHelperOverride) unless
       SavedSearchesController.helpers.is_a?(Geoblacklight::ViewHelperOverride)
-    Blacklight::Routes.send(:include, Geoblacklight::Routes)
   end
 
   def self.logger
