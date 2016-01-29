@@ -55,17 +55,39 @@ GeoBlacklight.Viewer.FeatureLayer = GeoBlacklight.Viewer.Esri.extend({
     });
   },
 
+  pointToExtent: function(point) {
+	//from http://blogs.esri.com/esri/arcgis/2010/02/08/find-graphics-under-a-mouse-click-with-the-arcgis-api-for-javascript/
+	var map = this.map;
+	var bounds = map.getBounds();
+	var southeast = new L.latLng(bounds._southWest.lat, bounds._northEast.lng);
+	var mapUnitsWidth = southeast.distanceTo(bounds._southWest);
+	var mapWidthPixels = map.getSize().x;
+	var tolerance = 0.05;
+
+	//calculate map coords represented per pixel
+	var pixelWidth = mapUnitsWidth / mapWidthPixels;
+	//calculate map coords for tolerance in pixel
+	var toleranceInMapCoords = tolerance * pixelWidth;
+
+	var projectedPoint = map.project(point);
+	var southwestProjected = L.point(projectedPoint.x - toleranceInMapCoords, projectedPoint.y - toleranceInMapCoords);
+	var northeastProjected = L.point(projectedPoint.x + toleranceInMapCoords, projectedPoint.y + toleranceInMapCoords);
+
+	//calculate & return computed extent
+	return new L.latLngBounds(map.unproject(southwestProjected), map.unproject(northeastProjected));
+  },
+
   setupInspection: function(featureLayer) {
     var _this = this;
 
     // inspect on click    
     featureLayer.on('click', function(e) {
       _this.appendLoadingMessage();
-
+	var qBounds = _this.pointToExtent(e.latlng);
       // query layer at click location
       featureLayer.query()
       .returnGeometry(false)
-      .intersects(e.latlng)
+      .intersects(qBounds)
       .run(function(error, featureCollection, response){
         if (error) {
           _this.appendErrorMessage();
