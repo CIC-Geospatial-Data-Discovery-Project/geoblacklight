@@ -19,7 +19,15 @@ GeoBlacklight.Viewer.FeatureLayer = GeoBlacklight.Viewer.Esri.extend({
     this.options.style = this.getFeatureStyle();
 
     // define feature layer
-    this.esriFeatureLayer = L.esri.featureLayer(this.options);
+    //this.esriFeatureLayer = L.esri.featureLayer(this.options);
+
+    this.options.polygonOptions= {
+        color: "#2d84c8"
+    };
+
+    this.options.maxClusterRadius = 40;
+
+    this.esriFeatureLayer = new L.esri.ClusteredFeatureLayer(this.options);
 
     //setup feature inspection and opacity
     this.setupInspection(this.esriFeatureLayer);
@@ -40,6 +48,13 @@ GeoBlacklight.Viewer.FeatureLayer = GeoBlacklight.Viewer.Esri.extend({
     this.map.addControl(new L.Control.LayerOpacity(this.esriFeatureLayer));
   },
 
+  //return the total number of features in the layer. used to check if clustering is needed
+  getFeatureCount: function(){
+    return this.esriFeatureLayer.query().where("1=1").count(function(error,count){
+        return count;
+    });
+},
+
   getFeatureStyle: function() {
     var _this = this;
 
@@ -50,29 +65,35 @@ GeoBlacklight.Viewer.FeatureLayer = GeoBlacklight.Viewer.Esri.extend({
   },
 
   setupInitialOpacity: function(featureLayer) {
-    featureLayer.on('load', function(e) {
-      featureLayer.setOpacity(this.options);
-    });
+    // featureLayer.on('load', function(e) {
+    //   featureLayer.setOpacity(this.options);
+    // });
   },
 
   setupInspection: function(featureLayer) {
     var _this = this;
 
-    // inspect on click
+    //inspect on click
     featureLayer.on('click', function(e) {
       _this.appendLoadingMessage();
+      _this.populateAttributeTable(e.layer.feature);
 
+      /*
       // query layer at click location
+      var bounds = _this.pointToExtent(e.latlng);
+      new L.rectangle(bounds).addTo(_this.map);
       featureLayer.query()
       .returnGeometry(false)
-      .intersects(e.latlng)
-      .run(function(error, featureCollection, response) {
+      .intersects(bounds)
+      .run(function(error, featureCollection, response){
         if (error) {
           _this.appendErrorMessage();
         } else {
           _this.populateAttributeTable(featureCollection.features[0]);
         }
       });
+      */
+
     });
   }
 });
