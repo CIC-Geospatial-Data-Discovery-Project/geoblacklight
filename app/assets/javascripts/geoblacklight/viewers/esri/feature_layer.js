@@ -25,15 +25,19 @@ GeoBlacklight.Viewer.FeatureLayer = GeoBlacklight.Viewer.Esri.extend({
         color: "#2d84c8"
     };
 
+/*
     this.options.pointToLayer = function (geojson, latlng) {
     return L.circleMarker(latlng, 10, {
       color: "#2D84C8"
     });
     };
+*/
+
+    this.options.maxClusterRadius = 40;
 
     this.esriFeatureLayer = new L.esri.ClusteredFeatureLayer(this.options);
-    window.kd = this.esriFeatureLayer;
     //this.getFeatureCount();
+
     //setup feature inspection and opacity
     this.setupInspection(this.esriFeatureLayer);
     this.setupInitialOpacity(this.esriFeatureLayer);
@@ -78,27 +82,27 @@ GeoBlacklight.Viewer.FeatureLayer = GeoBlacklight.Viewer.Esri.extend({
   setupInspection: function(featureLayer) {
     var _this = this;
 
-    // inspect on click
-    // featureLayer.on('click', function(e) {
-    //   _this.appendLoadingMessage();
-    //   _this.populateAttributeTable(e.layer.feature);
-    //
-    //   /*
-    //   // query layer at click location
-    //   var bounds = _this.pointToExtent(e.latlng);
-    //   new L.rectangle(bounds).addTo(_this.map);
-    //   featureLayer.query()
-    //   .returnGeometry(false)
-    //   .intersects(bounds)
-    //   .run(function(error, featureCollection, response){
-    //     if (error) {
-    //       _this.appendErrorMessage();
-    //     } else {
-    //       _this.populateAttributeTable(featureCollection.features[0]);
-    //     }
-    //   });
-    //   */
-    //
-    // });
+    //inspect on click
+    featureLayer.on('click', function(e) {
+      _this.appendLoadingMessage();
+      _this.populateAttributeTable(e.layer.feature);
+
+      /*
+      // query layer at click location
+      var bounds = _this.pointToExtent(e.latlng);
+      new L.rectangle(bounds).addTo(_this.map);
+      featureLayer.query()
+      .returnGeometry(false)
+      .intersects(bounds)
+      .run(function(error, featureCollection, response){
+        if (error) {
+          _this.appendErrorMessage();
+        } else {
+          _this.populateAttributeTable(featureCollection.features[0]);
+        }
+      });
+      */
+
+    });
   }
 });

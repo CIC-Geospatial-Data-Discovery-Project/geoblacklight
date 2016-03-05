@@ -9,6 +9,7 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  */
+
 @import 'leaflet';
 @import 'geoblacklight-icons-rails';
 
@@ -26,3 +27,5 @@
 @import 'modules/search_widgets';
 @import 'modules/toolbar';
 @import 'modules/web_services';
+@import 'MarkerCluster.css';
+@import 'MarkerCluster.Default.css';
