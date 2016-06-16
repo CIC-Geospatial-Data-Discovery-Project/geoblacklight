@@ -1,13 +1,13 @@
 //= require geoblacklight/viewers/viewer
 
 GeoBlacklight.Viewer.Map = GeoBlacklight.Viewer.extend({
-  
   options: {
     /**
     * Initial bounds of map
     * @type {L.LatLngBounds}
     */
-    bbox: [[-80, -195], [80, 185]]
+    bbox: [[-80, -195], [80, 185]],
+    opacity: 0.75
   },
   
   overlay: L.layerGroup(),
@@ -44,13 +44,6 @@ GeoBlacklight.Viewer.Map = GeoBlacklight.Viewer.extend({
    */
   removeBoundsOverlay: function() {
     this.overlay.clearLayers();
-  },
-
-  /**
-   * Add an opacity control to map.
-   */
-  addOpacityControl: function() {
-    this.map.addControl(new L.Control.LayerOpacity(this.overlay));
   },
 
   /**

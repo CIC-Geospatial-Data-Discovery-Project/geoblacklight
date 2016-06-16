@@ -8,11 +8,11 @@
   "dc_rights_s": "Public",
   "dc_title_s": "Soil Survey Geographic (SSURGO)",
   "dc_type_s": "Dataset",
-  "dct_references_s": "{\"http://www.arcgis.com/rdf#TiledMapLayer\": \"http://services.arcgisonline.com/arcgis/rest/services/Specialty/Soil_Survey_Map/MapServer\"}",
+  "dct_references_s": "{\"urn:x-esri:serviceType:ArcGIS#TiledMapLayer\": \"http://services.arcgisonline.com/arcgis/rest/services/Specialty/Soil_Survey_Map/MapServer\"}",
   "dct_temporal_sm": [
     "2010"
   ],
-  "dct_provenance_s": "Minnesota",
+  "dct_provenance_s": "University of Minnesota",
   "georss_box_s": "21.8079 -129.4956 48.6336 -64.4393",
   "layer_slug_s": "minnesota-test-soil-survey-map",
   "layer_id_s": "test-soil-survey_map",

@@ -16,15 +16,15 @@ module Geoblacklight
     end
 
     def public?
-      fetch(:dc_rights_s).downcase == 'public'
+      fetch(Settings.FIELDS.RIGHTS).casecmp('public').zero?
     end
 
     def restricted?
-      fetch(:dc_rights_s).downcase == 'restricted'
+      fetch(Settings.FIELDS.RIGHTS).casecmp('restricted').zero?
     end
 
     def downloadable?
-      (direct_download || download_types.present?) && available?
+      (direct_download || download_types.present? || iiif_download) && available?
     end
 
     def references
@@ -40,7 +40,11 @@ module Geoblacklight
     end
 
     def same_institution?
-      fetch(:dct_provenance_s).downcase == Settings.INSTITUTION.downcase
+      fetch(Settings.FIELDS.PROVENANCE).casecmp(Settings.INSTITUTION.downcase).zero?
+    end
+
+    def iiif_download
+      return references.iiif.to_hash unless references.iiif.blank?
     end
 
     def item_viewer
@@ -52,7 +56,7 @@ module Geoblacklight
     end
 
     def bounding_box_as_wsen
-      geom_field = fetch(Settings.GEOMETRY_FIELD.to_sym)
+      geom_field = fetch(Settings.FIELDS.GEOMETRY)
       exp = /^\s*ENVELOPE\(
                   \s*([-\.\d]+)\s*,
                   \s*([-\.\d]+)\s*,
@@ -60,12 +64,9 @@ module Geoblacklight
                   \s*([-\.\d]+)\s*
                   \)\s*$/x # uses 'x' option for free-spacing mode
       bbox_match = exp.match(geom_field)
-      if bbox_match
-        w, e, n, s = bbox_match.captures
-        return "#{w} #{s} #{e} #{n}"
-      else
-        return s # as-is, not a WKT
-      end
+      return s unless bbox_match # return as-is, not a WKT
+      w, e, n, s = bbox_match.captures
+      "#{w} #{s} #{e} #{n}"
     end
 
     ##

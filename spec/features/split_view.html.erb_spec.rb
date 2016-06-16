@@ -1,12 +1,13 @@
 require 'spec_helper'
 
 feature 'Index view', js: true do
+  let(:subject_field) { Settings.FIELDS.SUBJECT }
   before do
     visit catalog_index_path(q: '*')
   end
 
   scenario 'should have documents and map on page' do
-    visit catalog_index_path(f: { dct_provenance_s: ['Stanford'] })
+    visit catalog_index_path(f: { Settings.FIELDS.PROVENANCE => ['Stanford'] })
     expect(page).to have_css('#documents')
     expect(page).to have_css('.document', count: 3)
     expect(page).to have_css('#map')
@@ -24,14 +25,14 @@ feature 'Index view', js: true do
       expect(page).to have_css('div.panel.facet_limit', text: 'Format')
     end
     click_link 'Institution'
-    expect(page).to have_css('a.facet_select', text: 'Tufts', visible: true)
+    expect(page).to have_css('a.facet_select', text: 'Columbia', visible: true)
     expect(page).to have_css('a.facet_select', text: 'MIT', visible: true)
     expect(page).to have_css('a.facet_select', text: 'Stanford', visible: true)
   end
 
   scenario 'hover on record should produce bounding box on map' do
     # Needed to find an svg element on the page
-    visit catalog_index_path(f: { dct_provenance_s: ['Stanford'] })
+    visit catalog_index_path(f: { Settings.FIELDS.PROVENANCE => ['Stanford'] })
     expect(Nokogiri::HTML.parse(page.body).css('path').length).to eq 0
     find('.documentHeader', match: :first).trigger(:mouseover)
     expect(Nokogiri::HTML.parse(page.body).css('path').length).to eq 1
@@ -39,7 +40,7 @@ feature 'Index view', js: true do
 
   scenario 'click on a record area to expand collapse' do
     within('.documentHeader', match: :first) do
-      expect(page).to_not have_css('.collapse')
+      expect(page).not_to have_css('.collapse')
       find('.status-icons').trigger('click')
       expect(page).to have_css('.collapse', visible: true)
     end
@@ -52,7 +53,7 @@ feature 'Index view', js: true do
   end
 
   scenario 'clicking map search should retain current search parameters' do
-    visit '/?f[dc_subject_sm][]=polygon&f[dc_subject_sm][]=boundaries'
+    visit "/?f[#{subject_field}][]=polygon&f[#{subject_field}][]=boundaries"
     find('#map').double_click
     within '#appliedParams' do
       expect(page).to have_content('Subject polygon')

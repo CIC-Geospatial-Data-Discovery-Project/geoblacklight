@@ -15,16 +15,16 @@ module GeoblacklightHelper
     document_available? && @document.downloadable?
   end
 
-  def snippit(text)
-    if text
-      if text.length > 150
-        text.slice(0, 150) + '...'
-      else
-        text
-      end
-    else
-      ''
-    end
+  def iiif_jpg_url
+    @document.references.iiif.endpoint.sub! 'info.json', 'full/full/0/default.jpg'
+  end
+
+  ##
+  # Blacklight catalog controller helper method to truncate field value to 150 chars
+  # @param [SolrDocument] args
+  # @return [String]
+  def snippit(args)
+    truncate(args[:value], length: 150)
   end
 
   def render_facet_tags(facet)
@@ -50,7 +50,7 @@ module GeoblacklightHelper
   #
   def render_facet_links(facet, items)
     items.uniq.map do |item|
-      link_to item, catalog_index_path(f: { "#{facet}" => [item] })
+      link_to item, catalog_index_path(f: { facet => [item] })
     end.join(', ').html_safe
   end
 
@@ -102,13 +102,20 @@ module GeoblacklightHelper
   end
 
   ##
+  # Removes blank space from provider to accomodate CartoDB OneClick
+  #
+  def cartodb_provider
+    application_name.delete(' ')
+  end
+
+  ##
   # Creates a CartoDB OneClick link link, using the configuration link
   # @param [String] file_link
   # @return [String]
   def cartodb_link(file_link)
-    params  = URI.encode_www_form(
+    params = URI.encode_www_form(
       file: file_link,
-      provider: application_name,
+      provider: cartodb_provider,
       logo: Settings.APPLICATION_LOGO_URL
     )
     Settings.CARTODB_ONECLICK_LINK + '?' + params
@@ -125,5 +132,12 @@ module GeoblacklightHelper
     )
   rescue ActionView::MissingTemplate
     render partial: 'web_services_default', locals: { reference: reference }
+  end
+
+  ##
+  # Returns a hash of the leaflet plugin settings to pass to the viewer.
+  # @return[Hash]
+  def leaflet_options
+    Settings.LEAFLET
   end
 end

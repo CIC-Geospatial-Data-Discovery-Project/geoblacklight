@@ -5,7 +5,7 @@ GeoBlacklight.Viewer.TiledMapLayer = GeoBlacklight.Viewer.Esri.extend({
   getPreviewLayer: function() {
 
     // set layer url
-    this.layerOptions.url = this.data.url;
+    this.options.url = this.data.url;
 
     // check if this is a tile map and layer and for correct spatial reference
     if (this.layerInfo.singleFusedMapCache === true && this.layerInfo.spatialReference.wkid === 102100) {
@@ -15,8 +15,7 @@ GeoBlacklight.Viewer.TiledMapLayer = GeoBlacklight.Viewer.Esri.extend({
         *        - use Proj4Leaflet
       */
 
-      // 
-      var esriTiledMapLayer = L.esri.tiledMapLayer(this.layerOptions);
+      var esriTiledMapLayer = L.esri.tiledMapLayer(this.options);
 
       //setup feature inspection
       this.setupInspection(esriTiledMapLayer);
@@ -25,15 +24,15 @@ GeoBlacklight.Viewer.TiledMapLayer = GeoBlacklight.Viewer.Esri.extend({
     }
   },
 
-  setupInspection: function(layer) { 
+  setupInspection: function(layer) {
     var _this = this;
     this.map.on('click', function(e) {
       _this.appendLoadingMessage();
 
       // query layer at click location
       L.esri.Tasks.identifyFeatures({
-          url: layer.options.url,
-          useCors: true
+        url: layer.options.url,
+        useCors: true
       })
         .tolerance(0)
         .returnGeometry(false)

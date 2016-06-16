@@ -2,12 +2,6 @@
 
 GeoBlacklight.Viewer.Esri = GeoBlacklight.Viewer.Map.extend({
   layerInfo: {},
-  
-  layerOptions: {
-
-    // sets initial layer opacity
-    opacity: 0.75 
-  },
 
   load: function() {
     this.options.bbox = L.bboxToBounds(this.data.mapBbox);
@@ -37,9 +31,8 @@ GeoBlacklight.Viewer.Esri = GeoBlacklight.Viewer.Map.extend({
 
         // add layer to map
         if (_this.addPreviewLayer(layer)) {
-
-          // add control if layer is added
-          _this.addOpacityControl();
+          // add controls if layer is added
+          _this.loadControls();
         }
       }
     });
