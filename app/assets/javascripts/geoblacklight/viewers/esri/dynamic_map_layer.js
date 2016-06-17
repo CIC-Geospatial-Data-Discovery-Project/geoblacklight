@@ -15,7 +15,7 @@ GeoBlacklight.Viewer.DynamicMapLayer = GeoBlacklight.Viewer.Esri.extend({
 
     // if the last seg is an integer, slice and save as dynamicLayerId
     if (Number(lastSegment) === parseInt(lastSegment, 10)) {
-      this.dynamicLayerId = lastSegment;
+      _this.dynamicLayerId = lastSegment;
       this.data.url = this.data.url.slice(0,-(lastSegment.length + 1));
     }
     
@@ -23,6 +23,25 @@ GeoBlacklight.Viewer.DynamicMapLayer = GeoBlacklight.Viewer.Esri.extend({
     L.esri.get(_this.data.url, {}, function(error, response){
       if(!error) {
         _this.layerInfo = response;
+
+	if (!_this.dynamicLayerId){
+		var all_layers = _this.layerInfo.layers;
+		var all_layers_ids = [];
+		var visible_layers = [];
+		$(all_layers).each(function(index, lyr){
+			if (lyr.defaultVisibility === true){
+				visible_layers.push(lyr.id);
+			}
+			all_layers_ids.push(lyr.id);
+		});
+
+		if (visible_layers.length > 0){
+			_this.dynamicLayerIds = visible_layers;
+		}
+		else {
+			_this.dynamicLayerIds = all_layers_ids[0];
+		}
+	}
 
         // get layer
         var layer = _this.getPreviewLayer();
@@ -42,10 +61,16 @@ GeoBlacklight.Viewer.DynamicMapLayer = GeoBlacklight.Viewer.Esri.extend({
     // set layer url
     this.options.url = this.data.url;
 
+    //how to check for CORS support and only set false if necessary?
+    this.options.useCors = false;
+
     // show only single layer, if specified
     if (this.dynamicLayerId) {
       this.options.layers = [this.dynamicLayerId];
     }
+	else if (this.dynamicLayerIds){
+		this.options.layers = this.dynamicLayerIds;
+	}
 
     var esriDynamicMapLayer = L.esri.dynamicMapLayer(this.options);
 
@@ -57,30 +82,25 @@ GeoBlacklight.Viewer.DynamicMapLayer = GeoBlacklight.Viewer.Esri.extend({
   setupInspection: function(layer) { 
     var _this = this;
     this.map.on('click', function(e) {
-      _this.appendLoadingMessage();
-
-      // query layer at click location
-      var identify = L.esri.Tasks.identifyFeatures({
-          url: layer.options.url,
-          useCors: true
-      })
-        .tolerance(0)
-        .returnGeometry(false)
-        .on(_this.map)
-        .at(e.latlng);
-
-      // query specific layer if dynamicLayerId is set
-      if (_this.dynamicLayerId) {
-        identify.layers('ID: ' + _this.dynamicLayerId);
-      }
-
-      identify.run(function(error, featureCollection, response){
-        if (error) {
-          _this.appendErrorMessage();
-        } else {
-          _this.populateAttributeTable(featureCollection.features[0]);
-        }
-      });
-    });
+        _this.appendLoadingMessage();
+	var layers = _this.dynamicLayerId ? "all:" + _this.dynamicLayerId : 
+		_this.dynamicLayerIds ? "all:" + _this.dynamicLayerIds.join() : "top";
+	layer.identify()
+		.on(_this.map)
+		.layers(layers)
+		.at(e.latlng)
+		.tolerance(2)
+		.returnGeometry(false)
+		.run(function(error, featureCollection){
+			if (error) {
+			   _this.appendErrorMessage();
+			} else if (featureCollection.features.length > 0) {
+			  _this.populateAttributeTable(featureCollection.features[0]);
+			}
+			else {
+			   _this.appendNoFeatureFoundMessage();
+			}
+		  });
+	  });
   }
 });
