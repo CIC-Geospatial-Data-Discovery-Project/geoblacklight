@@ -1,7 +1,7 @@
 //= require geoblacklight/viewers/esri
 
 GeoBlacklight.Viewer.DynamicMapLayer = GeoBlacklight.Viewer.Esri.extend({
-
+    
   // override to parse between dynamic layer types
   getEsriLayer: function() {
     var _this = this;
@@ -24,24 +24,27 @@ GeoBlacklight.Viewer.DynamicMapLayer = GeoBlacklight.Viewer.Esri.extend({
       if(!error) {
         _this.layerInfo = response;
 
-	if (!_this.dynamicLayerId){
-		var all_layers = _this.layerInfo.layers;
-		var all_layers_ids = [];
-		var visible_layers = [];
-		$(all_layers).each(function(index, lyr){
-			if (lyr.defaultVisibility === true){
-				visible_layers.push(lyr.id);
-			}
-			all_layers_ids.push(lyr.id);
-		});
+    //if there's not a single specified layer, 
+    //check for visible layers and use those,
+    //otherwise, just use the first one :/
+    if (!_this.dynamicLayerId){
+        var all_layers = _this.layerInfo.layers;
+        var all_layers_ids = [];
+        var visible_layers = [];
+        $(all_layers).each(function(index, lyr){
+            if (lyr.defaultVisibility === true){
+                visible_layers.push(lyr.id);
+            }
+            all_layers_ids.push(lyr.id);
+        });
 
-		if (visible_layers.length > 0){
-			_this.dynamicLayerIds = visible_layers;
-		}
-		else {
-			_this.dynamicLayerIds = all_layers_ids[0];
-		}
-	}
+        if (visible_layers.length > 0){
+            _this.dynamicLayerIds = visible_layers;
+        }
+        else {
+            _this.dynamicLayerIds = all_layers_ids[0];
+        }
+    }
 
         // get layer
         var layer = _this.getPreviewLayer();
@@ -61,16 +64,18 @@ GeoBlacklight.Viewer.DynamicMapLayer = GeoBlacklight.Viewer.Esri.extend({
     // set layer url
     this.options.url = this.data.url;
 
-    //how to check for CORS support and only set false if necessary?
+    //is there a way to check for CORS support 
+    //and only set false if necessary?
+    //for now we need JSONP
     this.options.useCors = false;
 
     // show only single layer, if specified
     if (this.dynamicLayerId) {
       this.options.layers = [this.dynamicLayerId];
     }
-	else if (this.dynamicLayerIds){
-		this.options.layers = this.dynamicLayerIds;
-	}
+    else if (this.dynamicLayerIds){
+      this.options.layers = this.dynamicLayerIds;
+    }
 
     var esriDynamicMapLayer = L.esri.dynamicMapLayer(this.options);
 
@@ -82,25 +87,26 @@ GeoBlacklight.Viewer.DynamicMapLayer = GeoBlacklight.Viewer.Esri.extend({
   setupInspection: function(layer) { 
     var _this = this;
     this.map.on('click', function(e) {
-        _this.appendLoadingMessage();
-	var layers = _this.dynamicLayerId ? "all:" + _this.dynamicLayerId : 
-		_this.dynamicLayerIds ? "all:" + _this.dynamicLayerIds.join() : "top";
-	layer.identify()
-		.on(_this.map)
-		.layers(layers)
-		.at(e.latlng)
-		.tolerance(2)
-		.returnGeometry(false)
-		.run(function(error, featureCollection){
-			if (error) {
-			   _this.appendErrorMessage();
-			} else if (featureCollection.features.length > 0) {
-			  _this.populateAttributeTable(featureCollection.features[0]);
-			}
-			else {
-			   _this.appendNoFeatureFoundMessage();
-			}
-		  });
-	  });
+      _this.appendLoadingMessage();
+      var layers = _this.dynamicLayerId ? "all:" + _this.dynamicLayerId : 
+        _this.dynamicLayerIds ? "all:" + _this.dynamicLayerIds.join() : "top";
+      layer.identify()
+        .on(_this.map)
+        .layers(layers)
+        .at(e.latlng)
+        .tolerance(2)
+        .returnGeometry(false)
+        .run(function(error, featureCollection){
+          if (error) {
+            _this.appendErrorMessage();
+          } 
+          else if (featureCollection.features.length > 0) {
+            _this.populateAttributeTable(featureCollection.features[0]);
+          }
+          else {
+            _this.appendNoFeatureFoundMessage();
+          }
+        });
+       });
   }
 });
