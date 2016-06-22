@@ -25,18 +25,9 @@ GeoBlacklight.Viewer.FeatureLayer = GeoBlacklight.Viewer.Esri.extend({
         color: "#2d84c8"
     };
 
-/*
-    this.options.pointToLayer = function (geojson, latlng) {
-    return L.circleMarker(latlng, 10, {
-      color: "#2D84C8"
-    });
-    };
-*/
-
     this.options.maxClusterRadius = 40;
 
     this.esriFeatureLayer = new L.esri.ClusteredFeatureLayer(this.options);
-    //this.getFeatureCount();
 
     //setup feature inspection and opacity
     this.setupInspection(this.esriFeatureLayer);

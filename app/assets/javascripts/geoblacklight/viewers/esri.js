@@ -62,9 +62,13 @@ GeoBlacklight.Viewer.Esri = GeoBlacklight.Viewer.Map.extend({
   // appends error message to attribute table
   appendErrorMessage: function() {
     $('.attribute-table-body').html('<tbody class="attribute-table-body">'+ 
-      '<tr><td colspan="2">Could not find that feature</td></tr></tbody>');
+      '<tr><td colspan="2">An error occurred.</td></tr></tbody>');
   },
 
+  appendNoFeatureFoundMessage: function(){
+    $('.attribute-table-body').html('<tbody class="attribute-table-body">'+ 
+      '<tr><td colspan="2">No feature found.</td></tr></tbody>');
+  },
   // populates attribute table with feature properties
   populateAttributeTable: function(feature) {
     var html = $('<tbody class="attribute-table-body"></tbody>');
